@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Defense OSINT News</title>
+</head>
+
+<body>
+
+<h1>Global Security News</h1>
+
+<div id="news"></div>
+
+<script>
+
+fetch("https://newsapi.org/v2/everything?q=military OR cyber OR space OR missile&apiKey=YOUR_API_KEY")
+
+.then(res => res.json())
+
+.then(data => {
+
+let articles = data.articles;
+
+let html = "";
+
+articles.forEach(a => {
+
+html += `
+<h3>${a.title}</h3>
+<p>${a.description}</p>
+<a href="${a.url}" target="_blank">Read more</a>
+<hr>
+`;
+
+});
+
+document.getElementById("news").innerHTML = html;
+
+});
+
+</script>
+
+</body>
+</html>
