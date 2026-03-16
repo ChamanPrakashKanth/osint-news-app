@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>Defense OSINT News</title>
 
 <style>
 
 body{
-font-family: Arial;
+font-family: Arial, sans-serif;
 background:#0b0f19;
 color:white;
 padding:20px;
+margin:0;
 }
 
 h1{
@@ -17,20 +19,62 @@ text-align:center;
 margin-bottom:40px;
 }
 
+#news{
+max-width:900px;
+margin:auto;
+}
+
 .card{
 background:#151c2c;
 padding:20px;
 margin-bottom:20px;
 border-radius:8px;
+border-left:4px solid #4da3ff;
+transition:0.2s;
+}
+
+.card:hover{
+transform:translateY(-2px);
+background:#1b2438;
+}
+
+.title{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.description{
+color:#c7cbd6;
+margin-bottom:10px;
+}
+
+.meta{
+font-size:12px;
+color:#8b93a7;
+margin-bottom:12px;
+display:flex;
+align-items:center;
+gap:6px;
 }
 
 .card a{
 color:#4da3ff;
 text-decoration:none;
+font-weight:bold;
 }
 
 .card a:hover{
 text-decoration:underline;
+}
+
+.favicon{
+width:16px;
+height:16px;
+}
+
+.loading{
+text-align:center;
+color:#9aa3b2;
 }
 
 </style>
@@ -41,9 +85,34 @@ text-decoration:underline;
 
 <h1>🛰 Defense OSINT News</h1>
 
-<div id="news"></div>
+<div id="news">
+<p class="loading">Loading intelligence feed...</p>
+</div>
 
 <script>
+
+function cleanURL(url){
+return url.split("?")[0]
+}
+
+function getDomain(url){
+try{
+return new URL(url).hostname
+}catch{
+return ""
+}
+}
+
+function getFavicon(url){
+let domain = getDomain(url)
+return "https://www.google.com/s2/favicons?domain=" + domain
+}
+
+function formatDate(dateString){
+if(!dateString) return ""
+let d = new Date(dateString)
+return d.toLocaleString()
+}
 
 fetch("/api/news")
 
@@ -51,27 +120,51 @@ fetch("/api/news")
 
 .then(data => {
 
-let articles = data.articles || data;
+let articles = data.articles || data
 
-let html = "";
+const container = document.getElementById("news")
+container.innerHTML = ""
 
 articles.slice(0,20).forEach(a => {
 
-html += `
-<div class="card">
-<h3>${a.title}</h3>
-<p>${a.description || ""}</p>
-<a href="${a.url}" target="_blank">Read full article</a>
+const card = document.createElement("div")
+card.className = "card"
+
+let favicon = getFavicon(a.url)
+let source = a.source?.name || getDomain(a.url)
+
+card.innerHTML = `
+<div class="title">${a.title}</div>
+
+<div class="description">${a.description || ""}</div>
+
+<div class="meta">
+<img class="favicon" src="${favicon}">
+<span>${source}</span>
+<span>•</span>
+<span>${formatDate(a.publishedAt)}</span>
 </div>
-`;
 
-});
+<a href="${cleanURL(a.url)}" target="_blank" rel="noopener noreferrer">
+Read full article
+</a>
+`
 
-document.getElementById("news").innerHTML = html;
+container.appendChild(card)
 
-});
+})
+
+})
+
+.catch(err => {
+
+document.getElementById("news").innerHTML =
+"<p class='loading'>Failed to load intelligence feed</p>"
+
+})
 
 </script>
 
 </body>
+
 </html>
