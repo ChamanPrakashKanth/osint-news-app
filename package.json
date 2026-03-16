@@ -1,0 +1,10 @@
+{
+  "name": "defense-osint-dashboard",
+  "version": "1.0.0",
+  "description": "Defense OSINT news aggregator",
+  "type": "module",
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}
+npm install
